@@ -32,7 +32,7 @@ export default function MapScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#d0e2f2',
   },
   logout: {
     position: 'absolute',
