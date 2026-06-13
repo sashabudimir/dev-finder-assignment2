@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapBackground: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#dbeafe',
   },
   roadOne: {
