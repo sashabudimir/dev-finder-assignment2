@@ -1,30 +1,74 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
+import MapView, { Marker, Region } from 'react-native-maps';
 
 export default function MapScreen({ route, navigation }: any) {
+  const username = route.params.username;
+
+  const [region, setRegion] = useState<Region>({
+    latitude: 51.0447,
+    longitude: -114.0719,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  });
+
+  useEffect(() => {
+    setRegion({
+      latitude: 51.0447,
+      longitude: -114.0719,
+      latitudeDelta: 0.1,
+      longitudeDelta: 0.1,
+    });
+  }, []);
+
+  function handleLogout() {
+    navigation.replace('Signup');
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.logout}>Logout</Text>
-
-      <View style={styles.markerOne}>
-        <Text style={styles.avatar}>LT</Text>
-      </View>
-
-      <View style={styles.markerTwo}>
-        <Text style={styles.avatar}>JS</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.tooltip}
-        onPress={() =>
-          navigation.navigate('Profile', {
-            githubUsername: route.params.username,
-          })
-        }
+      <MapView
+        style={styles.map}
+        initialRegion={region}
+        showsUserLocation={true}
+        showsMyLocationButton={false}
+        toolbarEnabled={false}
+        showsIndoors={false}
+        mapType="mutedStandard"
       >
-        <Text style={styles.name}>Linus Torvalds</Text>
-        <Text>@{route.params.username}</Text>
-        <Text style={styles.link}>Tap to open GitHub profile</Text>
-      </TouchableOpacity>
+        <Marker
+          coordinate={{
+            latitude: 51.0447,
+            longitude: -114.0719,
+          }}
+          title={username}
+          description={`@${username}`}
+          onCalloutPress={() =>
+            navigation.navigate('Profile', {
+              githubUsername: username,
+            })
+          }
+        />
+
+        <Marker
+          coordinate={{
+            latitude: 51.05,
+            longitude: -114.08,
+          }}
+          title="James Smith"
+          description="@jamessmith"
+          onCalloutPress={() =>
+            navigation.navigate('Profile', {
+              githubUsername: 'jamessmith',
+            })
+          }
+        />
+      </MapView>
+
+      <RectButton style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>Logout</Text>
+      </RectButton>
     </View>
   );
 }
@@ -32,51 +76,23 @@ export default function MapScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#d0e2f2',
   },
-  logout: {
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  logoutButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'absolute',
-    top: 40,
-    right: 30,
-    backgroundColor: '#101847',
+    top: 64,
+    right: 24,
+    height: 40,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#031A62',
+    borderRadius: 4,
+  },
+  logoutText: {
     color: 'white',
-    padding: 10,
-  },
-  markerOne: {
-    position: 'absolute',
-    top: 180,
-    left: 120,
-  },
-  markerTwo: {
-    position: 'absolute',
-    top: 330,
-    left: 260,
-  },
-  avatar: {
-    backgroundColor: '#101847',
-    color: 'white',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    textAlign: 'center',
-    paddingTop: 15,
-    fontWeight: 'bold',
-  },
-  tooltip: {
-    position: 'absolute',
-    top: 250,
-    left: 90,
-    right: 90,
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  link: {
-    marginTop: 8,
-    color: '#1f6feb',
   },
 });
