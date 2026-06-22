@@ -8,6 +8,9 @@ import {
   Platform,
 } from 'react-native';
 import BigButton from '../components/BigButton';
+import * as Location from 'expo-location';
+import api from '../services/api';
+import { getGithubUser } from '../services/github';
 
 export default function SignupScreen({ navigation }: any) {
   const [username, setUsername] = useState('');
@@ -21,16 +24,35 @@ export default function SignupScreen({ navigation }: any) {
     }
 
     try {
-      const response = await fetch(`https://api.github.com/users/${cleanedUsername}`);
+      const githubUser = await getGithubUser(cleanedUsername);
 
-      if (!response.ok) {
-        Alert.alert('Invalid username', 'There is no such username on GitHub.');
+      const permission = await Location.requestForegroundPermissionsAsync();
+
+      if (permission.status !== 'granted') {
+        Alert.alert('Error', 'Location permission is required.');
         return;
       }
 
-      navigation.replace('Map', { username: cleanedUsername });
-    } catch {
-      Alert.alert('Error', 'Could not check GitHub username. Please try again.');
+      const location = await Location.getCurrentPositionAsync();
+
+      const newUser = {
+        id: githubUser.id,
+        name: githubUser.name || githubUser.login,
+        login: githubUser.login,
+        avatar_url: githubUser.avatar_url,
+        company: githubUser.company || 'No company listed',
+        bio: githubUser.bio || 'No bio available',
+        coordinates: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+      };
+
+      await api.post('/users', newUser);
+
+      navigation.replace('Map', { username: githubUser.login });
+    } catch (error) {
+      Alert.alert('Error', 'Could not register this GitHub user.');
     }
   }
 
